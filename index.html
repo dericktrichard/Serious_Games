@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serious Game Diagnostic Framework</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Google Fonts loaded here so CSS can reference them -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <div class="app-wrapper">
+
+    <!-- ── Site Header ── -->
+    <header class="site-header">
+      <div class="header-label">Diagnostic Instrument · v1.0</div>
+      <h1 class="site-title">Serious Game <em>Diagnostic</em> Framework</h1>
+      <p class="site-subtitle">
+        A weighted five-criterion evaluation tool for determining whether a digital game
+        constitutes genuine serious game design or surface-level gamification.
+      </p>
+    </header>
+
+    <!-- ── Section 1: Game Identity ── -->
+    <section class="card" aria-labelledby="identity-heading">
+      <div class="card-title" id="identity-heading">Game Identity</div>
+
+      <div class="field-group">
+        <label class="field-label" for="game-name">
+          Game / App Name <span>required</span>
+        </label>
+        <input
+          type="text"
+          id="game-name"
+          placeholder="e.g. DragonBox Algebra, Minecraft Education Edition…"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="notes">
+          Additional Notes <span>optional — appears in conclusion</span>
+        </label>
+        <textarea
+          id="notes"
+          placeholder="Contextual observations, caveats, or study limitations…"
+        ></textarea>
+      </div>
+
+      <div class="field-group" style="margin-bottom:0;">
+        <div class="example-strip">
+          <span class="example-label">Load Example →</span>
+          <button class="example-btn" data-example="dragonbox">DragonBox Algebra</button>
+          <button class="example-btn" data-example="minecraft">Minecraft Education</button>
+          <button class="example-btn" data-example="mathquiz">Math Quiz App</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Section 2: Criteria Scoring ── -->
+    <section class="card" aria-labelledby="criteria-heading">
+      <div class="card-title" id="criteria-heading">Criterion Scoring</div>
+      <!-- Sliders injected here by ui.js -->
+      <div id="criteria-mount"></div>
+    </section>
+
+    <!-- ── Section 3: Non-Negotiable Conditions ── -->
+    <section class="card" aria-labelledby="conditions-heading">
+      <div class="card-title" id="conditions-heading">Non-Negotiable Conditions</div>
+      <p style="font-size:0.82rem;color:var(--white-muted);margin-bottom:18px;line-height:1.6;">
+        Check each condition that is demonstrably met in the deployment context.
+        These are independent of the criterion scores and modulate the conclusion.
+      </p>
+      <!-- Checkboxes injected here by ui.js -->
+      <div id="conditions-mount"></div>
+    </section>
+
+    <!-- ── Actions ── -->
+    <div class="action-row">
+      <button class="btn-primary" id="btn-generate">Generate Diagnosis</button>
+      <button class="btn-secondary" id="btn-reset">Reset</button>
+    </div>
+
+    <!-- ── Report Output (hidden until generated) ── -->
+    <div id="report-section" role="region" aria-label="Diagnostic Report" aria-live="polite">
+      <!-- Populated by ui.js renderReport() -->
+    </div>
+
+    <!-- ── Footer ── -->
+    <footer class="site-footer">
+      <p class="footer-text">Group 24 &nbsp;·&nbsp; Serious Games Seminar</p>
+    </footer>
+
+  </div><!-- /.app-wrapper -->
+
+  <!-- ── Scripts (order matters: data → scoring → ui → app) ── -->
+  <script src="js/data.js"></script>
+  <script src="js/scoring.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

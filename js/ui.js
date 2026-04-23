@@ -1,3 +1,8 @@
+/* ============================================================
+   ui.js — DOM construction: renders criteria sliders,
+           conditions checklist, and the full report card
+   ============================================================ */
+
 window.SGDF = window.SGDF || {};
 
 /* ── Slider track background update ── */

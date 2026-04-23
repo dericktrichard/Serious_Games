@@ -1,3 +1,8 @@
+/* ============================================================
+   app.js — Application controller: initialises the app,
+            wires all events, orchestrates modules
+   ============================================================ */
+
 (function () {
   'use strict';
 
