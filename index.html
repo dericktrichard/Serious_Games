@@ -4,103 +4,180 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Serious Game Diagnostic Framework</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <!-- Google Fonts loaded here so CSS can reference them -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <div class="app-wrapper">
+<div class="app" id="app">
 
-    <!-- ── Site Header ── -->
-    <header class="site-header">
-      <div class="header-label">Diagnostic Instrument · v1.0</div>
-      <h1 class="site-title">Serious Game <em>Diagnostic</em> Framework</h1>
-      <p class="site-subtitle">
-        A weighted five-criterion evaluation tool for determining whether a digital game
-        constitutes genuine serious game design or surface-level gamification.
-      </p>
-    </header>
+  <!-- ══════════════════════════════════════
+       TOP BAR — always visible
+  ══════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-code">SGDF</span>
+      <span class="brand-pipe"></span>
+      <span class="brand-name">Serious Game Diagnostic Framework</span>
+    </div>
 
-    <!-- ── Section 1: Game Identity ── -->
-    <section class="card" aria-labelledby="identity-heading">
-      <div class="card-title" id="identity-heading">Game Identity</div>
+    <div class="topbar-progress" id="topbar-progress">
+      <!-- Progress ring SVG -->
+      <svg class="progress-ring" viewBox="0 0 40 40" aria-hidden="true">
+        <circle class="ring-bg" cx="20" cy="20" r="16" />
+        <circle class="ring-fill" id="ring-fill" cx="20" cy="20" r="16"
+          stroke-dasharray="100.53"
+          stroke-dashoffset="100.53" />
+      </svg>
+      <span class="progress-pct" id="progress-pct">0%</span>
+      <span class="progress-label" id="progress-label">Not started</span>
+    </div>
+  </header>
 
-      <div class="field-group">
-        <label class="field-label" for="game-name">
-          Game / App Name <span>required</span>
-        </label>
-        <input
-          type="text"
-          id="game-name"
-          placeholder="e.g. DragonBox Algebra, Minecraft Education Edition…"
-          autocomplete="off"
-        />
+  <!-- ══════════════════════════════════════
+       STEPPER
+  ══════════════════════════════════════ -->
+  <nav class="stepper" id="stepper">
+    <div class="step active" id="step-setup" data-step="setup">
+      <div class="step-node">
+        <span class="step-num">1</span>
+        <span class="step-done">✓</span>
       </div>
-
-      <div class="field-group">
-        <label class="field-label" for="notes">
-          Additional Notes <span>optional — appears in conclusion</span>
-        </label>
-        <textarea
-          id="notes"
-          placeholder="Contextual observations, caveats, or study limitations…"
-        ></textarea>
+      <span class="step-label">Setup</span>
+    </div>
+    <div class="step-line"><div class="step-line-fill" id="line-1"></div></div>
+    <div class="step" id="step-criteria" data-step="criteria">
+      <div class="step-node">
+        <span class="step-num">2</span>
+        <span class="step-done">✓</span>
       </div>
+      <span class="step-label">Criteria</span>
+    </div>
+    <div class="step-line"><div class="step-line-fill" id="line-2"></div></div>
+    <div class="step" id="step-conditions" data-step="conditions">
+      <div class="step-node">
+        <span class="step-num">3</span>
+        <span class="step-done">✓</span>
+      </div>
+      <span class="step-label">Conditions</span>
+    </div>
+    <div class="step-line"><div class="step-line-fill" id="line-3"></div></div>
+    <div class="step" id="step-results" data-step="results">
+      <div class="step-node">
+        <span class="step-num">4</span>
+        <span class="step-done">✓</span>
+      </div>
+      <span class="step-label">Results</span>
+    </div>
+  </nav>
 
-      <div class="field-group" style="margin-bottom:0;">
-        <div class="example-strip">
-          <span class="example-label">Load Example →</span>
-          <button class="example-btn" data-example="dragonbox">DragonBox Algebra</button>
-          <button class="example-btn" data-example="minecraft">Minecraft Education</button>
-          <button class="example-btn" data-example="mathquiz">Math Quiz App</button>
+  <!-- ══════════════════════════════════════
+       PANELS
+  ══════════════════════════════════════ -->
+  <main class="panels">
+
+    <!-- ── SETUP ── -->
+    <section class="panel active" id="panel-setup">
+      <div class="setup-center">
+        <div class="setup-header">
+          <p class="setup-eyebrow">Step 1 of 4</p>
+          <h1 class="setup-title">Identify the <em>subject</em></h1>
+          <p class="setup-desc">Name the game you are evaluating. Optionally load a preset to see the framework in action.</p>
+        </div>
+
+        <div class="setup-form">
+          <div class="sfield">
+            <label class="sfield-label" for="game-name">Game or Application Name</label>
+            <input type="text" id="game-name" class="sfield-input"
+              placeholder="e.g. DragonBox Algebra, Minecraft Education…" autocomplete="off" />
+          </div>
+          <div class="sfield">
+            <label class="sfield-label" for="notes">Notes <span class="sfield-opt">optional</span></label>
+            <textarea id="notes" class="sfield-input sfield-ta"
+              placeholder="Contextual observations, study caveats…"></textarea>
+          </div>
+
+          <div class="preset-section">
+            <p class="preset-label">Load a preset example</p>
+            <div class="preset-row">
+              <button class="preset-pill" data-example="dragonbox">DragonBox Algebra</button>
+              <button class="preset-pill" data-example="minecraft">Minecraft Education</button>
+              <button class="preset-pill" data-example="mathquiz">Math Quiz App</button>
+            </div>
+          </div>
+
+          <button class="btn-go" id="btn-start">Begin Evaluation →</button>
         </div>
       </div>
     </section>
 
-    <!-- ── Section 2: Criteria Scoring ── -->
-    <section class="card" aria-labelledby="criteria-heading">
-      <div class="card-title" id="criteria-heading">Criterion Scoring</div>
-      <!-- Sliders injected here by ui.js -->
-      <div id="criteria-mount"></div>
+    <!-- ── CRITERIA (question cards) ── -->
+    <section class="panel" id="panel-criteria">
+      <!-- Question counter -->
+      <div class="q-chrome">
+        <div class="q-counter">
+          <span id="q-current">1</span>
+          <span class="q-sep">/</span>
+          <span id="q-total">5</span>
+        </div>
+        <div class="q-section-name" id="q-section-name">Criteria Assessment</div>
+        <button class="btn-skip" id="btn-back-setup">← Setup</button>
+      </div>
+
+      <!-- Single question card -->
+      <div class="q-stage">
+        <div class="q-card" id="q-card">
+          <div class="q-tag" id="q-tag">Design Logic</div>
+          <h2 class="q-text" id="q-text">
+            To what extent do <em>learning objectives</em> drive the core gameplay mechanics?
+          </h2>
+
+          <div class="q-pills" id="q-pills" role="group" aria-label="Response options">
+            <!-- Injected by JS -->
+          </div>
+
+          <div class="q-nav">
+            <button class="btn-prev" id="btn-q-prev" disabled>← Previous</button>
+            <button class="btn-next-q" id="btn-q-next">Next →</button>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- ── Section 3: Non-Negotiable Conditions ── -->
-    <section class="card" aria-labelledby="conditions-heading">
-      <div class="card-title" id="conditions-heading">Non-Negotiable Conditions</div>
-      <p style="font-size:0.82rem;color:var(--white-muted);margin-bottom:18px;line-height:1.6;">
-        Check each condition that is demonstrably met in the deployment context.
-        These are independent of the criterion scores and modulate the conclusion.
-      </p>
-      <!-- Checkboxes injected here by ui.js -->
-      <div id="conditions-mount"></div>
+    <!-- ── CONDITIONS ── -->
+    <section class="panel" id="panel-conditions">
+      <div class="cond-center">
+        <div class="cond-header">
+          <p class="setup-eyebrow">Step 3 of 4</p>
+          <h2 class="setup-title">Non-Negotiable <em>Conditions</em></h2>
+          <p class="setup-desc">These contextual factors are independent of scores. Check each that applies.</p>
+        </div>
+        <div class="cond-cards" id="cond-cards">
+          <!-- Injected by JS -->
+        </div>
+        <div class="cond-actions">
+          <button class="btn-ghost" id="btn-back-criteria">← Back</button>
+          <button class="btn-go" id="btn-to-results">Generate Report →</button>
+        </div>
+      </div>
     </section>
 
-    <!-- ── Actions ── -->
-    <div class="action-row">
-      <button class="btn-primary" id="btn-generate">Generate Diagnosis</button>
-      <button class="btn-secondary" id="btn-reset">Reset</button>
-    </div>
+    <!-- ── RESULTS ── -->
+    <section class="panel" id="panel-results">
+      <div class="results-wrap" id="results-wrap">
+        <!-- Injected by JS -->
+      </div>
+    </section>
 
-    <!-- ── Report Output (hidden until generated) ── -->
-    <div id="report-section" role="region" aria-label="Diagnostic Report" aria-live="polite">
-      <!-- Populated by ui.js renderReport() -->
-    </div>
+  </main>
 
-    <!-- ── Footer ── -->
-    <footer class="site-footer">
-      <p class="footer-text">Group 24 &nbsp;·&nbsp; Serious Games Seminar</p>
-    </footer>
+</div><!-- /app -->
 
-  </div><!-- /.app-wrapper -->
-
-  <!-- ── Scripts (order matters: data → scoring → ui → app) ── -->
-  <script src="js/data.js"></script>
-  <script src="js/scoring.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/app.js"></script>
-
+<script src="js/data.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
