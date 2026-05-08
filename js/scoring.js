@@ -115,13 +115,7 @@ function buildConclusionText({ gameName, score, verdict, conditions, conditionDe
   } else {
     text += ` Notably, all five non-negotiable conditions are met, suggesting strong contextual readiness for deployment.`;
   }
-
-  if (notes && notes.trim()) {
-    text += ` Additional context: ${notes.trim()}`;
-  }
-
-  text += ` The question is not whether ${gameName} is 'good' or 'bad,' but whether its design logic produces learning or merely the appearance of learning.`;
-
+  
   return text;
 }
 
