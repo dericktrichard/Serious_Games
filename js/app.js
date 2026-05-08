@@ -1,6 +1,6 @@
 /* ============================================================
    app.js — Application controller
-   Fixes: progress tracking, preset auto-skip, conditions timing
+   Panels: setup → criteria → conditions → results → analytics
    ============================================================ */
 
 (function () {
@@ -13,139 +13,126 @@
     buildConditionCards, collectConditions, setConditions,
     renderResults, updateProgress,
   } = window.SGDF;
+  const { saveEvaluation, renderAnalyticsDashboard }          = window.SGDF;
 
-  /* ══════════════════════════════════════
-     STATE
-     scores[i] = null (unanswered) | 1.0–5.0
-     condValues[i] = true | false
-  ══════════════════════════════════════ */
-  const scores    = new Array(CRITERIA.length).fill(null);
-  const condValues= new Array(CONDITIONS.length).fill(false);
-  let currentQ    = 0;
-  let activePreset= null;
-  let currentPanel= 'setup';
+  /* ── State ── */
+  const scores     = new Array(CRITERIA.length).fill(null);
+  const condValues = new Array(CONDITIONS.length).fill(false);
+  let currentQ     = 0;
+  let activePreset = null;
+  let currentPanel = 'setup';
 
-  /* ── DOM refs ── */
+  /* ── DOM ── */
   const gameNameInput = document.getElementById('game-name');
   const notesInput    = document.getElementById('notes');
   const condCardsEl   = document.getElementById('cond-cards');
   const resultsWrap   = document.getElementById('results-wrap');
+  const analyticsWrap = document.getElementById('analytics-wrap');
 
   const PANELS = {
     setup:      document.getElementById('panel-setup'),
     criteria:   document.getElementById('panel-criteria'),
     conditions: document.getElementById('panel-conditions'),
     results:    document.getElementById('panel-results'),
+    analytics:  document.getElementById('panel-analytics'),
   };
 
-  const STEPS = {
-    setup:      document.getElementById('step-setup'),
-    criteria:   document.getElementById('step-criteria'),
-    conditions: document.getElementById('step-conditions'),
-    results:    document.getElementById('step-results'),
-  };
+  const STEP_IDS  = ['setup','criteria','conditions','results'];
+  const STEP_ELS  = STEP_IDS.map((id) => document.getElementById(`step-${id}`));
+  const LINE_ELS  = [1,2,3].map((i) => document.getElementById(`line-${i}`));
 
-  const LINES = {
-    1: document.getElementById('line-1'),
-    2: document.getElementById('line-2'),
-    3: document.getElementById('line-3'),
-  };
-
-  const PANEL_ORDER = ['setup', 'criteria', 'conditions', 'results'];
-
-  /* ══════════════════════════════════════
-     PANEL NAVIGATION
-  ══════════════════════════════════════ */
+  /* ════════════════════════════════════
+     NAVIGATION
+  ════════════════════════════════════ */
   function showPanel(name) {
     currentPanel = name;
-    const idx    = PANEL_ORDER.indexOf(name);
+    Object.entries(PANELS).forEach(([k, el]) => el?.classList.toggle('active', k === name));
 
-    Object.entries(PANELS).forEach(([key, el]) => {
-      el.classList.toggle('active', key === name);
-    });
+    if (name === 'analytics') {
+      // Highlight analytics tab, deactivate stepper
+      document.getElementById('tab-analytics').classList.add('active');
+      document.getElementById('tab-evaluate').classList.remove('active');
+      renderAnalyticsDashboard(analyticsWrap, CRITERIA);
+    } else {
+      document.getElementById('tab-analytics').classList.remove('active');
+      document.getElementById('tab-evaluate').classList.add('active');
+    }
 
-    PANEL_ORDER.forEach((key, i) => {
-      const step = STEPS[key];
-      step.classList.remove('active', 'done', 'unlocked');
-      if (i < idx)   step.classList.add('done', 'unlocked');
-      if (i === idx) step.classList.add('active', 'unlocked');
-    });
-
-    LINES[1].style.width = idx >= 1 ? '100%' : '0%';
-    LINES[2].style.width = idx >= 2 ? '100%' : '0%';
-    LINES[3].style.width = idx >= 3 ? '100%' : '0%';
+    const idx = STEP_IDS.indexOf(name);
+    if (idx >= 0) {
+      STEP_ELS.forEach((el, i) => {
+        el.classList.remove('active','done','unlocked');
+        if (i < idx)  el.classList.add('done','unlocked');
+        if (i === idx) el.classList.add('active','unlocked');
+      });
+      LINE_ELS.forEach((el, i) => { el.style.width = idx > i ? '100%' : '0%'; });
+    }
 
     refreshProgress();
   }
 
-  // Allow clicking done steps to navigate back
-  PANEL_ORDER.forEach((key) => {
-    STEPS[key].addEventListener('click', () => {
-      if (!STEPS[key].classList.contains('done')) return;
-      showPanel(key);
-      if (key === 'criteria') renderCurrentQ();
-      if (key === 'conditions') ensureConditionCards();
+  // Click-back on completed steps
+  STEP_IDS.forEach((id, i) => {
+    STEP_ELS[i].addEventListener('click', () => {
+      if (!STEP_ELS[i].classList.contains('done')) return;
+      showPanel(id);
+      if (id === 'criteria')   renderCurrentQ();
+      if (id === 'conditions') ensureConditionCards();
     });
   });
 
-  /* ══════════════════════════════════════
-     PROGRESS — tracks ALL 10 items live
-     5 criteria scores + 5 condition checks
-  ══════════════════════════════════════ */
+  /* ── Tab switcher (top nav) ── */
+  document.getElementById('tab-evaluate').addEventListener('click', () => {
+    showPanel(currentPanel === 'analytics' ? 'setup' : currentPanel);
+    if (currentPanel === 'setup') showPanel('setup');
+  });
+
+  document.getElementById('tab-analytics').addEventListener('click', () => {
+    showPanel('analytics');
+  });
+
+  /* ════════════════════════════════════
+     PROGRESS
+  ════════════════════════════════════ */
   function countAnswered() {
-    const criteriaAnswered   = scores.filter((s) => s !== null).length;
-    const conditionsAnswered = condValues.filter(Boolean).length;
-    return criteriaAnswered + conditionsAnswered;
+    return scores.filter(Boolean).length + condValues.filter(Boolean).length;
   }
 
   function refreshProgress() {
-    const total    = CRITERIA.length + CONDITIONS.length; // 10
-    const answered = countAnswered();
-
+    const total = CRITERIA.length + CONDITIONS.length;
     const labelMap = {
       setup:      'Not started',
-      criteria:   `Criteria — ${scores.filter((s) => s !== null).length} / ${CRITERIA.length}`,
-      conditions: `Conditions — ${condValues.filter(Boolean).length} / ${CONDITIONS.length} checked`,
+      criteria:   `Criteria ${scores.filter(Boolean).length}/${CRITERIA.length}`,
+      conditions: `Conditions ${condValues.filter(Boolean).length}/${CONDITIONS.length}`,
       results:    'Complete',
+      analytics:  'Analytics',
     };
-
-    updateProgress(answered, total, labelMap[currentPanel] || '');
+    updateProgress(countAnswered(), total, labelMap[currentPanel] || '');
   }
 
-  /* ══════════════════════════════════════
+  /* ════════════════════════════════════
      PRESETS
-  ══════════════════════════════════════ */
+  ════════════════════════════════════ */
   document.querySelectorAll('.preset-pill').forEach((btn) => {
     btn.addEventListener('click', () => {
       const ex = EXAMPLES.find((e) => e.key === btn.dataset.example);
       if (!ex) return;
-
       document.querySelectorAll('.preset-pill').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       activePreset = ex.key;
-
-      // Populate form fields
       gameNameInput.value = ex.gameName;
       notesInput.value    = ex.notes;
-
-      // Load scores into state
-      ex.scores.forEach((s, i) => { scores[i] = s; });
-
-      // Load condition values into state
+      ex.scores.forEach((s, i)     => { scores[i]     = s; });
       ex.conditions.forEach((v, i) => { condValues[i] = v; });
-
       refreshProgress();
     });
   });
 
-  /* ══════════════════════════════════════
-     SETUP → next step
-     If preset: skip criteria, go straight to conditions
-     If manual: go through criteria one by one
-  ══════════════════════════════════════ */
+  /* ════════════════════════════════════
+     SETUP → next
+  ════════════════════════════════════ */
   document.getElementById('btn-start').addEventListener('click', () => {
     if (activePreset) {
-      // Preset: all scores are loaded — skip straight to conditions
       ensureConditionCards();
       showPanel('conditions');
     } else {
@@ -155,50 +142,35 @@
     }
   });
 
-  document.getElementById('btn-back-setup').addEventListener('click', () => {
-    showPanel('setup');
-  });
+  document.getElementById('btn-back-setup').addEventListener('click', () => showPanel('setup'));
 
-  /* ══════════════════════════════════════
-     CRITERIA — question-by-question
-  ══════════════════════════════════════ */
+  /* ════════════════════════════════════
+     CRITERIA — question by question
+  ════════════════════════════════════ */
   function renderCurrentQ() {
     renderQuestionCard({
       criterion:      CRITERIA[currentQ],
       questionIndex:  currentQ,
       totalQuestions: CRITERIA.length,
       currentValue:   scores[currentQ],
-
-      onSelect(value) {
-        scores[currentQ] = value;
+      onSelect(v) {
+        scores[currentQ] = v;
         refreshProgress();
-        // Auto-advance unless it's the last question
+        updateInlineBar();
         if (currentQ < CRITERIA.length - 1) {
           setTimeout(() => advanceQ(1), 360);
-        }
-        // On last question, the Next button now glows
-        else {
+        } else {
           const nb = document.getElementById('btn-q-next');
           if (nb) nb.style.color = 'var(--gold)';
         }
       },
-
-      onPrev() {
-        if (currentQ > 0) advanceQ(-1);
-      },
-
+      onPrev() { if (currentQ > 0) advanceQ(-1); },
       onNext() {
-        if (currentQ < CRITERIA.length - 1) {
-          advanceQ(1);
-        } else {
-          // All criteria done — move to conditions
-          ensureConditionCards();
-          showPanel('conditions');
-        }
+        if (currentQ < CRITERIA.length - 1) advanceQ(1);
+        else { ensureConditionCards(); showPanel('conditions'); }
       },
     });
-
-    updateInlineProgressBar();
+    updateInlineBar();
   }
 
   function advanceQ(dir) {
@@ -209,7 +181,7 @@
     });
   }
 
-  function updateInlineProgressBar() {
+  function updateInlineBar() {
     const card = document.getElementById('q-card');
     if (!card) return;
     let bar = card.querySelector('.q-progress-track');
@@ -219,25 +191,17 @@
       bar.innerHTML = '<div class="q-progress-fill" id="q-prog-fill"></div>';
       card.prepend(bar);
     }
-    const fill = document.getElementById('q-prog-fill');
-    // Show progress as answered count, not current index
+    const fill    = document.getElementById('q-prog-fill');
     const answered = scores.filter((s) => s !== null).length;
     if (fill) fill.style.width = (answered / CRITERIA.length * 100) + '%';
   }
 
-  /* ══════════════════════════════════════
+  /* ════════════════════════════════════
      CONDITIONS
-     ensureConditionCards builds the DOM once,
-     then immediately applies state (preset or manual)
-  ══════════════════════════════════════ */
+  ════════════════════════════════════ */
   function ensureConditionCards() {
-    // Always rebuild so checkboxes are fresh
     buildConditionCards(condCardsEl, CONDITIONS);
-
-    // Apply state (works for both presets and manual toggles)
     setConditions(CONDITIONS, condValues);
-
-    // Wire up live state sync
     CONDITIONS.forEach((cond, i) => {
       const cb = document.getElementById(`cond-${cond.id}`);
       if (!cb) return;
@@ -249,73 +213,61 @@
   }
 
   document.getElementById('btn-back-criteria').addEventListener('click', () => {
-    if (activePreset) {
-      // Preset: go back to setup, not criteria
-      showPanel('setup');
-    } else {
-      currentQ = CRITERIA.length - 1;
-      showPanel('criteria');
-      renderCurrentQ();
-    }
+    if (activePreset) showPanel('setup');
+    else { currentQ = CRITERIA.length - 1; showPanel('criteria'); renderCurrentQ(); }
   });
 
   document.getElementById('btn-to-results').addEventListener('click', () => {
     const gameName      = gameNameInput.value.trim() || 'Unnamed Game';
     const conditionsArr = collectConditions(CONDITIONS);
     const notes         = notesInput.value.trim();
-    const finalScores   = scores.map((s) => s ?? 3.0); // neutral fallback
+    const finalScores   = scores.map((s) => s ?? 3.0);
+    const score         = computeWeightedScore(finalScores, CRITERIA);
+    const verdict       = getVerdict(score);
 
-    const score   = computeWeightedScore(finalScores, CRITERIA);
-    const verdict = getVerdict(score);
+    // Persist to analytics store
+    saveEvaluation({ gameName, score, verdict, scores: finalScores, conditionsArr, notes });
 
     renderResults({
       wrap: resultsWrap,
       gameName, score, verdict,
-      scores:        finalScores,
-      criteria:      CRITERIA,
-      conditionsArr,
-      conditionDefs: CONDITIONS,
-      notes,
+      scores: finalScores, criteria: CRITERIA,
+      conditionsArr, conditionDefs: CONDITIONS, notes,
     });
 
     showPanel('results');
 
+    // Wire buttons rendered inside results
     document.getElementById('btn-copy-r')?.addEventListener('click', () => {
       copyText(buildTextReport({
-        gameName, score, verdict,
-        scores:        finalScores,
-        criteria:      CRITERIA,
-        conditions:    conditionsArr,
-        conditionDefs: CONDITIONS,
-        notes,
+        gameName, score, verdict, scores: finalScores,
+        criteria: CRITERIA, conditions: conditionsArr,
+        conditionDefs: CONDITIONS, notes,
       }));
     });
 
     document.getElementById('btn-restart-r')?.addEventListener('click', resetAll);
+
+    // "View Analytics" shortcut rendered in results
+    document.getElementById('btn-view-analytics')?.addEventListener('click', () => showPanel('analytics'));
   });
 
-  /* ══════════════════════════════════════
+  /* ════════════════════════════════════
      RESET
-  ══════════════════════════════════════ */
+  ════════════════════════════════════ */
   function resetAll() {
     scores.fill(null);
     condValues.fill(false);
-    currentQ     = 0;
-    activePreset = null;
-
-    gameNameInput.value = '';
-    notesInput.value    = '';
+    currentQ = 0; activePreset = null;
+    gameNameInput.value = ''; notesInput.value = '';
     document.querySelectorAll('.preset-pill').forEach((b) => b.classList.remove('active'));
-
-    resultsWrap.innerHTML = '';
-    condCardsEl.innerHTML = '';
-
+    resultsWrap.innerHTML = ''; condCardsEl.innerHTML = '';
     showPanel('setup');
   }
 
-  /* ══════════════════════════════════════
+  /* ════════════════════════════════════
      COPY
-  ══════════════════════════════════════ */
+  ════════════════════════════════════ */
   function copyText(text) {
     const flash = () => {
       const el = document.getElementById('copy-flash');
@@ -325,11 +277,9 @@
     };
     navigator.clipboard.writeText(text).then(flash).catch(() => {
       const ta = Object.assign(document.createElement('textarea'), { value: text });
-      Object.assign(ta.style, { position: 'fixed', opacity: '0' });
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
+      Object.assign(ta.style, { position:'fixed', opacity:'0' });
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
       flash();
     });
   }
