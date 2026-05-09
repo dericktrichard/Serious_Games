@@ -1,7 +1,3 @@
-/* ============================================================
-   ui.js — DOM builders for acrylic-aesthetic SPA
-   ============================================================ */
-
 window.SGDF = window.SGDF || {};
 
 /* ── Response scale ── */
