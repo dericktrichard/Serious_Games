@@ -1,8 +1,3 @@
-/* ============================================================
-   app.js — Application controller
-   Panels: setup → criteria → conditions → results → analytics
-   ============================================================ */
-
 (function () {
   'use strict';
 
