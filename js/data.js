@@ -1,7 +1,3 @@
-/* ============================================================
-   data.js — All static data: criteria, conditions, examples
-   ============================================================ */
-
 const CRITERIA = [
   {
     id: 'design_logic',
