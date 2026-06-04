@@ -28,13 +28,13 @@ function scoreColor(v) {
 function buildQuestionHTML(c) {
   const q = {
     design_logic:
-      `To what extent have you observed that <em>learning objectives are inseparable from the core gameplay</em> — that the game simply could not function without engaging the learning content?`,
+      `To what extent have you observed that <em>learning objectives are inseparable from the core gameplay</em>, that the game simply could not function without engaging the learning content?`,
     cognitive_demand:
       `To what extent have you observed that this game demands <em>genuine problem-solving and systems thinking</em>, rather than repetitive surface-level actions like tapping or selecting?`,
     failure_function:
-      `To what extent have you observed that <em>failure in this game is educationally productive</em> — providing feedback that reveals conceptual misunderstandings rather than just penalising the player?`,
+      `To what extent have you observed that <em>failure in this game is educationally productive</em>, providing feedback that reveals conceptual misunderstandings rather than just penalising the player?`,
     learning_depth:
-      `To what extent have you observed that <em>understanding the content is necessary to progress</em> — that a player cannot succeed through trial-and-error or rote repetition alone?`,
+      `To what extent have you observed that <em>understanding the content is necessary to progress</em>, that a player cannot succeed through trial-and-error or rote repetition alone?`,
     transfer_evidence:
       `To what extent have you observed <em>credible evidence that skills learned in this game transfer</em> to novel real-world problems outside the game context?`,
   };

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Serious Game Diagnostic Framework</title>
+    <title>SGDF</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -23,6 +23,7 @@
       <div class="topbar-right">
         <!-- Hidden admin link — small, unobtrusive, no label -->
         <a href="#" id="admin-nav-link" class="admin-nav-link" title="Admin">⬡</a>
+        <button id="btn-theme-toggle" class="btn-theme-toggle" type="button" aria-label="Switch theme" title="Switch theme">☀</button>
 
         <div class="topbar-progress">
           <svg class="progress-ring" viewBox="0 0 40 40" aria-hidden="true">
@@ -69,8 +70,8 @@
             <p class="setup-eyebrow">Group 8 · Serious Games Seminar</p>
             <h1 class="landing-title"><em>Diagnostic Framework</em></h1>
             <p class="landing-desc">
-              A structured evaluation tool for determining whether a digital game constitutes a genuine serious game — or surface-level gamification.
-              Evaluate across five weighted criteria and five contextual conditions to produce a scored diagnostic report.
+              This is a structured evaluation tool for determining whether a digital game constitutes a genuine serious game or surface-level gamification.
+              Please evaluate across five weighted criteria and five contextual conditions to see a scored diagnostic report.
             </p>
           </div>
 
@@ -88,13 +89,13 @@
             </div>
             <div class="lcp-card">
               <span class="lcp-num">03</span>
-              <span class="lcp-name">Failure Function</span>
-              <span class="lcp-desc">Is failure educationally productive or merely punishing?</span>
+              <span class="lcp-name">Failure <br> Function</span>
+              <span class="lcp-desc">Is failure educationally productive?</span>
             </div>
             <div class="lcp-card">
               <span class="lcp-num">04</span>
-              <span class="lcp-name">Learning Depth</span>
-              <span class="lcp-desc">Is knowledge embedded — can you succeed without understanding?</span>
+              <span class="lcp-name">Learning <br> Depth</span>
+              <span class="lcp-desc">Is knowledge embedded?</span>
             </div>
             <div class="lcp-card">
               <span class="lcp-num">05</span>
@@ -136,10 +137,10 @@
         <div class="setup-center">
           <p class="setup-eyebrow">Step 1 of 4</p>
           <h1 class="setup-title">Identify the <em>subject</em></h1>
-          <p class="setup-desc">Name the game you are evaluating, or load a preset example to explore the framework.</p>
+          <p class="setup-desc">Name the game you are evaluating, or load a preset example.</p>
 
           <div class="sfield">
-            <label class="sfield-label" for="game-name">Game or Application Name</label>
+            <label class="sfield-label" for="game-name"><br>Game or Application Name</label>
             <input type="text" id="game-name" class="sfield-input"
               placeholder="e.g. DragonBox Algebra, Minecraft Education…" autocomplete="off" />
           </div>
@@ -152,14 +153,14 @@
 
           <div class="preset-section">
             <p class="preset-label">Load a preset example</p>
-            <p class="preset-sublabel">Presets auto-fill all scores — you'll skip straight to conditions and the report.</p>
+            <p class="preset-sublabel">Presets auto-fill all scores and you'll skip straight to conditions and the report.</p>
             <div class="preset-row">
               <button class="preset-pill" data-example="dragonbox">DragonBox Algebra</button>
               <button class="preset-pill" data-example="minecraft">Minecraft Education</button>
               <button class="preset-pill" data-example="mathquiz">Math Quiz App</button>
             </div>
           </div>
-
+          <br>
           <div class="setup-actions">
             <button class="btn-go" id="btn-start">Begin Evaluation →</button>
             <button class="btn-ghost" id="btn-back-to-landing">← Back</button>

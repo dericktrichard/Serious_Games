@@ -47,6 +47,37 @@
   const STEP_ORDER = ['setup','criteria','conditions','results'];
   const STEP_ELS   = STEP_ORDER.map(id => document.getElementById(`step-${id}`));
   const LINE_ELS   = [1,2,3].map(i => document.getElementById(`line-${i}`));
+  const themeToggle = document.getElementById('btn-theme-toggle');
+
+  const THEME_KEY = 'sgdf-theme';
+
+  function applyTheme(theme) {
+    const normalized = theme === 'light' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = normalized;
+    if (themeToggle) {
+      const label = normalized === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+      themeToggle.textContent = normalized === 'light' ? '🌙' : '☀';
+      themeToggle.title = label;
+      themeToggle.setAttribute('aria-label', label);
+    }
+    localStorage.setItem(THEME_KEY, normalized);
+  }
+
+  function toggleTheme() {
+    applyTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+  }
+
+  function restoreTheme() {
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored === 'light' || stored === 'dark') {
+      applyTheme(stored);
+    } else {
+      applyTheme('dark');
+    }
+  }
+
+  themeToggle?.addEventListener('click', toggleTheme);
+  restoreTheme();
 
   /* ════════════════════════════════════
      PANEL NAVIGATION
