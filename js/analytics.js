@@ -116,7 +116,9 @@ function computeAggregates(entries) {
    Only called after PIN verification
 ══════════════════════════════════════ */
 function renderAdminDashboard(container, criteria, conditions) {
-  const entries = loadEvaluations();
+  const entries = (window.SGDF && typeof window.SGDF.loadEvaluations === 'function')
+    ? window.SGDF.loadEvaluations()
+    : loadEvaluations();
   const agg     = computeAggregates(entries);
 
   container.innerHTML = '';
