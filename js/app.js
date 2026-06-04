@@ -14,11 +14,15 @@
     buildConditionCards, collectConditions, setConditions,
     renderResults, updateProgress,
   } = window.SGDF;
-  const {
-    isAdminAuthed, adminLogout,
-    saveEvaluation,
-    renderAdminDashboard, renderAdminLogin,
-  } = window.SGDF;
+  const { isAdminAuthed, adminLogout, renderAdminLogin } = window.SGDF;
+
+  function saveEvaluation(payload) {
+    return window.SGDF.saveEvaluation(payload);
+  }
+
+  function renderAdminDashboard(container, criteria, conditions) {
+    return window.SGDF.renderAdminDashboard(container, criteria, conditions);
+  }
 
   /* ── State ── */
   const scores     = new Array(CRITERIA.length).fill(null);
