@@ -1,3 +1,8 @@
+/* ============================================================
+   ui.js — DOM builders
+   Panels: landing, question cards, conditions, results
+   ============================================================ */
+
 window.SGDF = window.SGDF || {};
 
 /* ── Response scale ── */
@@ -17,8 +22,8 @@ function scoreColor(v) {
 
 /* ════════════════════════════════════
    QUESTION TEXT
-   Framed as "To what extent have you observed..."
-   so Strongly Agree = high score naturally.
+   "To what extent have you observed..."
+   → Strongly Agree naturally maps to high score
 ════════════════════════════════════ */
 function buildQuestionHTML(c) {
   const q = {
@@ -37,7 +42,7 @@ function buildQuestionHTML(c) {
 }
 
 /* ════════════════════════════════════
-   QUESTION CARD
+   QUESTION CARD RENDERER
 ════════════════════════════════════ */
 function renderQuestionCard({ criterion, questionIndex, totalQuestions, currentValue, onSelect, onPrev, onNext }) {
   document.getElementById('q-current').textContent = questionIndex + 1;
@@ -45,7 +50,6 @@ function renderQuestionCard({ criterion, questionIndex, totalQuestions, currentV
   document.getElementById('q-tag').textContent     = criterion.name;
   document.getElementById('q-text').innerHTML      = buildQuestionHTML(criterion);
 
-  // Pills
   const pillsEl = document.getElementById('q-pills');
   pillsEl.innerHTML = '';
   SCALE.forEach(({ label, value }) => {
@@ -56,7 +60,10 @@ function renderQuestionCard({ criterion, questionIndex, totalQuestions, currentV
     btn.dataset.value = value;
     btn.innerHTML = `<span class="pill-label">${label}</span><span class="pill-val">${value.toFixed(1)}</span>`;
     btn.addEventListener('click', () => {
-      pillsEl.querySelectorAll('.q-pill').forEach((p) => { p.classList.remove('selected'); p.setAttribute('aria-checked','false'); });
+      pillsEl.querySelectorAll('.q-pill').forEach(p => {
+        p.classList.remove('selected');
+        p.setAttribute('aria-checked', 'false');
+      });
       btn.classList.add('selected');
       btn.setAttribute('aria-checked', 'true');
       onSelect(value);
@@ -64,12 +71,13 @@ function renderQuestionCard({ criterion, questionIndex, totalQuestions, currentV
     pillsEl.appendChild(btn);
   });
 
-  // Nav — clone to clear old listeners
+  // Clone nav buttons to clear stale listeners
   const op = document.getElementById('btn-q-prev');
   const on_ = document.getElementById('btn-q-next');
-  const np  = op.cloneNode(true);
-  const nn  = on_.cloneNode(true);
-  op.replaceWith(np); on_.replaceWith(nn);
+  const np = op.cloneNode(true);
+  const nn = on_.cloneNode(true);
+  op.replaceWith(np);
+  on_.replaceWith(nn);
 
   np.disabled    = questionIndex === 0;
   nn.textContent = questionIndex === totalQuestions - 1 ? 'Continue →' : 'Next →';
@@ -77,7 +85,6 @@ function renderQuestionCard({ criterion, questionIndex, totalQuestions, currentV
   nn.addEventListener('click', onNext);
 }
 
-/* ── Card entrance/exit animation ── */
 function animateCardTransition(dir, callback) {
   const card = document.getElementById('q-card');
   card.classList.add('leaving');
@@ -89,7 +96,7 @@ function animateCardTransition(dir, callback) {
 ════════════════════════════════════ */
 function buildConditionCards(container, conditions) {
   container.innerHTML = '';
-  conditions.forEach((cond) => {
+  conditions.forEach(cond => {
     const label = document.createElement('label');
     label.className = 'cond-card';
     label.setAttribute('for', `cond-${cond.id}`);
@@ -101,17 +108,17 @@ function buildConditionCards(container, conditions) {
         <span class="cond-desc">${cond.desc}</span>
       </span>`;
     container.appendChild(label);
-    label.querySelector('input').addEventListener('change', (e) => label.classList.toggle('on', e.target.checked));
+    label.querySelector('input').addEventListener('change', e => label.classList.toggle('on', e.target.checked));
   });
 }
 
 function collectConditions(conditions) {
-  return conditions.map((c) => document.getElementById(`cond-${c.id}`)?.checked || false);
+  return conditions.map(c => document.getElementById(`cond-${c.id}`)?.checked || false);
 }
 
 function setConditions(conditions, values) {
   conditions.forEach((c, i) => {
-    const cb = document.getElementById(`cond-${c.id}`);
+    const cb  = document.getElementById(`cond-${c.id}`);
     const lbl = cb?.closest('label');
     if (!cb) return;
     cb.checked = values[i];
@@ -127,6 +134,7 @@ function renderResults({ wrap, gameName, score, verdict, scores, criteria, condi
   const fillPct  = ((score - 1) / 4) * 100;
   const barColor = { serious: '#3a8c5c', hybrid: '#8c6a2a', gamification: '#8c3a3a' }[verdict.key];
 
+  // Criterion breakdown
   const breakdown = criteria.map((c, i) => {
     const pct = ((scores[i] - 1) / 4) * 100;
     return `<div class="rb">
@@ -136,12 +144,35 @@ function renderResults({ wrap, gameName, score, verdict, scores, criteria, condi
     </div>`;
   }).join('');
 
+  // Conditions
   const condRows = conditionDefs.map((cd, i) => `
     <div class="r-cond ${conditionsArr[i] ? 'met' : 'unmet'}">
       <span class="r-cond-icon">${conditionsArr[i] ? '✓' : '✗'}</span>
       <span class="r-cond-name">${cd.name}</span>
     </div>`).join('');
 
+  // Points of improvement — criteria scoring below 3.0, sorted lowest first
+  const improvements = criteria
+    .map((c, i) => ({ name: c.name, score: scores[i], lo: c.lo }))
+    .filter(c => c.score < 3.5)
+    .sort((a, b) => a.score - b.score);
+
+  const improvementHTML = improvements.length ? `
+    <div class="r-card full">
+      <div class="r-card-title">Points of Improvement</div>
+      <div class="r-improvements">
+        ${improvements.map(c => `
+          <div class="r-improve-row">
+            <span class="r-improve-icon" style="color:${scoreColor(c.score)}">↓</span>
+            <div class="r-improve-body">
+              <span class="r-improve-name">${c.name} — ${c.score.toFixed(1)}/5.0</span>
+              <span class="r-improve-hint">${c.lo}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  // Conclusion
   const raw  = buildConclusionText({ gameName, score, verdict, conditions: conditionsArr, conditionDefs, notes });
   const conc = raw
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -157,7 +188,7 @@ function renderResults({ wrap, gameName, score, verdict, scores, criteria, condi
     <div class="r-hero">
       <div class="r-score-block">
         <div class="r-score-num">${score.toFixed(2)}</div>
-        <div class="r-score-sub">/ 5.00</div>
+        <div class="r-score-sub">out of 5.00</div>
       </div>
       <div class="r-vline"></div>
       <div class="r-hero-info">
@@ -170,12 +201,13 @@ function renderResults({ wrap, gameName, score, verdict, scores, criteria, condi
     <div class="r-grid">
       <div class="r-card"><div class="r-card-title">Criterion Breakdown</div><div class="r-breakdown">${breakdown}</div></div>
       <div class="r-card"><div class="r-card-title">Conditions</div><div class="r-conds">${condRows}</div></div>
+      ${improvementHTML}
       <div class="r-card full"><div class="r-card-title">Conclusion</div><div class="r-conc">${conc}</div></div>
     </div>
 
     <div class="r-actions">
-      <button class="btn-outline" id="btn-copy-r">⎘ Copy Report</button>
-      <button class="btn-ghost-sm" id="btn-restart-r">↺ Start Over</button>
+      <button class="btn-copy-r" id="btn-copy-r">⎘ Copy Report</button>
+      <button class="btn-restart-r" id="btn-restart-r">↺ Evaluate Another</button>
       <span class="copy-flash" id="copy-flash">Copied to clipboard</span>
     </div>`;
 
@@ -190,11 +222,11 @@ function esc(s) {
 
 /* ── Progress ring ── */
 function updateProgress(answered, total, label) {
-  const pct    = total ? Math.round(answered / total * 100) : 0;
-  const ring   = document.getElementById('ring-fill');
-  const pctEl  = document.getElementById('progress-pct');
-  const lblEl  = document.getElementById('progress-label');
-  const C      = 100.53;
+  const pct   = total ? Math.round(answered / total * 100) : 0;
+  const ring  = document.getElementById('ring-fill');
+  const pctEl = document.getElementById('progress-pct');
+  const lblEl = document.getElementById('progress-label');
+  const C     = 100.53; // 2π × 16
   if (ring)  ring.style.strokeDashoffset = (C - C * pct / 100).toFixed(2);
   if (pctEl) pctEl.textContent = pct + '%';
   if (lblEl) lblEl.textContent = label || '';

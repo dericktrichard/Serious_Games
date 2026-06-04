@@ -6,41 +6,39 @@
     <title>Serious Game Diagnostic Framework</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-  <div class="app">
+  <div class="app" id="app">
 
-    <!-- ══ TOP CHROME ══ -->
-    <header class="chrome">
-      <div class="chrome-brand">
-        <span class="brand-mark">SGDF</span>
-        <span class="brand-div"></span>
+    <!-- ══ TOP BAR ══ -->
+    <header class="topbar">
+      <div class="topbar-brand">
+        <span class="brand-code">SGDF</span>
+        <span class="brand-pipe"></span>
         <span class="brand-name">Serious Game Diagnostic Framework</span>
       </div>
 
-      <!-- Navigation tabs -->
-      <div class="chrome-tabs">
-        <button class="chrome-tab active" id="tab-evaluate">Evaluate</button>
-        <button class="chrome-tab" id="tab-analytics">Analytics</button>
-      </div>
+      <div class="topbar-right">
+        <!-- Hidden admin link — small, unobtrusive, no label -->
+        <a href="#" id="admin-nav-link" class="admin-nav-link" title="Admin">⬡</a>
 
-      <!-- Progress ring -->
-      <div class="chrome-progress">
-        <svg class="p-ring" viewBox="0 0 40 40" aria-hidden="true">
-          <circle class="p-ring-bg"   cx="20" cy="20" r="15" />
-          <circle class="p-ring-fill" id="ring-fill" cx="20" cy="20" r="15"
-            stroke-dasharray="94.25" stroke-dashoffset="94.25" />
-        </svg>
-        <span class="p-pct"   id="progress-pct">0%</span>
-        <span class="p-label" id="progress-label">Not started</span>
+        <div class="topbar-progress">
+          <svg class="progress-ring" viewBox="0 0 40 40" aria-hidden="true">
+            <circle class="ring-bg"   cx="20" cy="20" r="16" />
+            <circle class="ring-fill" id="ring-fill" cx="20" cy="20" r="16"
+              stroke-dasharray="100.53" stroke-dashoffset="100.53" />
+          </svg>
+          <span class="progress-pct"   id="progress-pct">0%</span>
+          <span class="progress-label" id="progress-label">Not started</span>
+        </div>
       </div>
     </header>
 
     <!-- ══ STEPPER (evaluate flow only) ══ -->
-    <nav class="stepper" id="stepper">
-      <div class="step active unlocked" id="step-setup">
+    <nav class="stepper" id="stepper" style="display:none">
+      <div class="step" id="step-setup">
         <div class="step-node"><span class="step-num">1</span><span class="step-done">✓</span></div>
         <span class="step-label">Setup</span>
       </div>
@@ -64,12 +62,81 @@
     <!-- ══ PANELS ══ -->
     <main class="panels">
 
-      <!-- ── 1. SETUP ── -->
-      <section class="panel active" id="panel-setup">
+      <!-- ── LANDING ── -->
+      <section class="panel active" id="panel-landing">
+        <div class="landing-center">
+          <div class="landing-header">
+            <p class="setup-eyebrow">Group 8 · Serious Games Seminar</p>
+            <h1 class="landing-title"><em>Diagnostic Framework</em></h1>
+            <p class="landing-desc">
+              A structured evaluation tool for determining whether a digital game constitutes a genuine serious game — or surface-level gamification.
+              Evaluate across five weighted criteria and five contextual conditions to produce a scored diagnostic report.
+            </p>
+          </div>
+
+          <!-- Framework summary cards -->
+          <div class="landing-criteria-preview">
+            <div class="lcp-card">
+              <span class="lcp-num">01</span>
+              <span class="lcp-name">Design Logic</span>
+              <span class="lcp-desc">Are learning objectives inseparable from gameplay?</span>
+            </div>
+            <div class="lcp-card">
+              <span class="lcp-num">02</span>
+              <span class="lcp-name">Cognitive Demand</span>
+              <span class="lcp-desc">Does the game require genuine systems thinking?</span>
+            </div>
+            <div class="lcp-card">
+              <span class="lcp-num">03</span>
+              <span class="lcp-name">Failure Function</span>
+              <span class="lcp-desc">Is failure educationally productive or merely punishing?</span>
+            </div>
+            <div class="lcp-card">
+              <span class="lcp-num">04</span>
+              <span class="lcp-name">Learning Depth</span>
+              <span class="lcp-desc">Is knowledge embedded — can you succeed without understanding?</span>
+            </div>
+            <div class="lcp-card">
+              <span class="lcp-num">05</span>
+              <span class="lcp-name">Transfer Evidence</span>
+              <span class="lcp-desc">Is there credible evidence of real-world skill transfer?</span>
+            </div>
+          </div>
+
+          <!-- Verdict scale -->
+          <div class="landing-verdicts">
+            <div class="lv-item serious">
+              <span class="lv-dot"></span>
+              <span class="lv-label">Serious Game</span>
+              <span class="lv-range">Score ≥ 4.0</span>
+            </div>
+            <div class="lv-divider"></div>
+            <div class="lv-item hybrid">
+              <span class="lv-dot"></span>
+              <span class="lv-label">Hybrid</span>
+              <span class="lv-range">Score 3.0 – 3.9</span>
+            </div>
+            <div class="lv-divider"></div>
+            <div class="lv-item gamification">
+              <span class="lv-dot"></span>
+              <span class="lv-label">Gamification</span>
+              <span class="lv-range">Score &lt; 3.0</span>
+            </div>
+          </div>
+
+          <div class="landing-actions">
+            <button class="btn-go" id="btn-landing-start">Evaluate a Game →</button>
+            <button class="btn-ghost" id="btn-landing-presets">View Preset Examples</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SETUP ── -->
+      <section class="panel" id="panel-setup">
         <div class="setup-center">
-          <p class="panel-eyebrow">Step 1 of 4</p>
-          <h1 class="panel-title">Identify the <em>subject</em></h1>
-          <p class="panel-desc">Name the game you are evaluating, or load one of the preset examples to explore the framework.</p>
+          <p class="setup-eyebrow">Step 1 of 4</p>
+          <h1 class="setup-title">Identify the <em>subject</em></h1>
+          <p class="setup-desc">Name the game you are evaluating, or load a preset example to explore the framework.</p>
 
           <div class="sfield">
             <label class="sfield-label" for="game-name">Game or Application Name</label>
@@ -83,8 +150,9 @@
               placeholder="Contextual observations, study caveats, deployment context…"></textarea>
           </div>
 
-          <div class="preset-block">
-            <p class="preset-block-label">Load a preset example</p>
+          <div class="preset-section">
+            <p class="preset-label">Load a preset example</p>
+            <p class="preset-sublabel">Presets auto-fill all scores — you'll skip straight to conditions and the report.</p>
             <div class="preset-row">
               <button class="preset-pill" data-example="dragonbox">DragonBox Algebra</button>
               <button class="preset-pill" data-example="minecraft">Minecraft Education</button>
@@ -92,11 +160,14 @@
             </div>
           </div>
 
-          <button class="btn-primary" id="btn-start">Begin Evaluation →</button>
+          <div class="setup-actions">
+            <button class="btn-go" id="btn-start">Begin Evaluation →</button>
+            <button class="btn-ghost" id="btn-back-to-landing">← Back</button>
+          </div>
         </div>
       </section>
 
-      <!-- ── 2. CRITERIA (question cards) ── -->
+      <!-- ── CRITERIA ── -->
       <section class="panel" id="panel-criteria">
         <div class="q-chrome">
           <div class="q-counter">
@@ -104,13 +175,12 @@
             <span class="q-sep">/</span>
             <span id="q-total">5</span>
           </div>
-          <span class="q-section-label">Criteria Assessment</span>
-          <button class="btn-text-sm" id="btn-back-setup">← Setup</button>
+          <div class="q-section-name">Criteria Assessment</div>
+          <button class="btn-skip" id="btn-back-setup">← Setup</button>
         </div>
 
         <div class="q-stage">
           <div class="q-card" id="q-card">
-            <!-- progress bar injected by JS -->
             <div class="q-tag"  id="q-tag">Design Logic</div>
             <h2 class="q-text" id="q-text">To what extent have you observed…</h2>
             <div class="q-pills" id="q-pills" role="group" aria-label="Response options"></div>
@@ -122,31 +192,31 @@
         </div>
       </section>
 
-      <!-- ── 3. CONDITIONS ── -->
+      <!-- ── CONDITIONS ── -->
       <section class="panel" id="panel-conditions">
         <div class="cond-center">
-          <p class="panel-eyebrow">Step 3 of 4</p>
-          <h2 class="panel-title">Non-Negotiable <em>Conditions</em></h2>
-          <p class="panel-desc">These contextual factors are independent of criterion scores. Check each condition that is demonstrably met.</p>
+          <p class="setup-eyebrow">Step 3 of 4</p>
+          <h2 class="setup-title">Non-Negotiable <em>Conditions</em></h2>
+          <p class="setup-desc">These contextual factors are independent of scores. Check each condition that is demonstrably met in the deployment context.</p>
           <div class="cond-cards" id="cond-cards"></div>
           <div class="cond-actions">
-            <button class="btn-ghost-sm" id="btn-back-criteria">← Back</button>
-            <button class="btn-primary"  id="btn-to-results">Generate Report →</button>
+            <button class="btn-ghost" id="btn-back-criteria">← Back</button>
+            <button class="btn-go"    id="btn-to-results">Generate Report →</button>
           </div>
         </div>
       </section>
 
-      <!-- ── 4. RESULTS ── -->
+      <!-- ── RESULTS ── -->
       <section class="panel" id="panel-results">
         <div class="results-wrap" id="results-wrap"></div>
       </section>
 
-      <!-- ── 5. ANALYTICS ── -->
-      <section class="panel" id="panel-analytics">
-        <p class="panel-eyebrow">Aggregate Analysis</p>
-        <h2 class="panel-title">Evaluation <em>Analytics</em></h2>
-        <p class="panel-desc">Aggregate data from all evaluations stored in this browser. Each completed report is automatically saved.</p>
-        <div id="analytics-wrap"></div>
+      <!-- ── ADMIN ── -->
+      <section class="panel" id="panel-admin">
+        <div class="admin-panel-center">
+          <div id="admin-panel-header"></div>
+          <div id="admin-wrap"></div>
+        </div>
       </section>
 
     </main>
